@@ -1,12 +1,43 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Gráfica de Adicción</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <div style="text-align: center; margin-top: 50px;">
         <h2>Distribución del Puntaje de Adicción</h2>
-        <img src="data:image/png;base64,{{ img_data }}" alt="Histograma">
+
+        <div style="margin-top: 30px;">
+            <a href="/" class="boton">Inicio</a> |
+            <a href="/regresion" class="boton">Regresión Lineal</a> |
+            <a href="/logistica" class="boton">Regresión Logística</a> |
+            <a href="/arbol" class="boton">Arbol de Desiciones</a> |
+            <a href="/clustering" class="boton">Means Clustering</a> |
+            <label for="navegacion">Ir a:</label>
+            <select id="navegacion" class="boton">
+                <option disabled selected>Selecciona una opción</option>
+                <option value="/EDA">EDA - info()</option>
+                <option value="/head">Ver Datos (head)</option>
+                <option value="/grafica">Histograma</option>
+                <option value="/boxplot">Boxplot</option>
+                <option value="/relacion">Relación</option>
+                <option value="/correlacion">Correlación</option>
+                <option value="/normalizacion">Normalización</option>
+            </select>
+        </div>
+        <img src="data:image/png;base64,{{ img_data }}" alt="Histograma" style="margin-top: 50px;">
+        <script>
+            document.getElementById("navegacion").addEventListener("change", function () {
+                const ruta = this.value;
+                if (ruta) {
+                    window.location.href = ruta;
+                }
+            });
+        </script>
     </div>
 </body>
+
 </html>

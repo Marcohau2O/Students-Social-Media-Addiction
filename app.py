@@ -11,6 +11,7 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
 from mpl_toolkits.mplot3d import Axes3D
+import base64
 import io
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler

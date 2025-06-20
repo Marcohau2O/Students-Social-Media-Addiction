@@ -1,13 +1,46 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Vista de Datos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
-    <div class="container mt-5">
+    <div style="text-align: center; margin-top: 30px;">
         <h2 class="mb-4">Primeros Registros del Dataset</h2>
-        {{ table | safe }}
+
+        <div style="margin-top: 30px;">
+            <a href="/" class="boton">Inicio</a> |
+            <a href="/regresion" class="boton">Regresión Lineal</a> |
+            <a href="/logistica" class="boton">Regresión Logística</a> |
+            <a href="/arbol" class="boton">Arbol de Desiciones</a> |
+            <a href="/clustering" class="boton">Means Clustering</a> |
+            <label for="navegacion">Ir a:</label>
+            <select id="navegacion" class="boton">
+                <option disabled selected>Selecciona una opción</option>
+                <option value="/EDA">EDA - info()</option>
+                <option value="/head">Ver Datos (head)</option>
+                <option value="/grafica">Histograma</option>
+                <option value="/boxplot">Boxplot</option>
+                <option value="/relacion">Relación</option>
+                <option value="/correlacion">Correlación</option>
+                <option value="/normalizacion">Normalización</option>
+            </select>
+        </div>
+        <div class="table-responsive">
+            {{ table | safe }}
+        </div>
     </div>
+    <script>
+        document.getElementById("navegacion").addEventListener("change", function () {
+            const ruta = this.value;
+            if (ruta) {
+                window.location.href = ruta;
+            }
+        });
+    </script>
 </body>
+
 </html>
