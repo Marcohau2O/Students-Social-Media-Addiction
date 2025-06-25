@@ -47,7 +47,6 @@ def arbol():
 def clustering():
     return render_template('clustering.html')
 
-# API para datos de regresión
 @app.route('/api/regresion')
 def api_regresion():
     X = df[['Avg_Daily_Usage_Hours']].values
@@ -63,7 +62,6 @@ def api_regresion():
 
     return jsonify({"reales": reales, "prediccion": prediccion})
 
-# API para regresión logística
 @app.route('/api/logistica')
 def api_logistica():
     
@@ -108,14 +106,11 @@ def arbol_png():
 @app.route('/clustering.png')
 def clustering_png():
     
-    
-    # Codificamos género
     label_encoder = LabelEncoder()
     df['Gender'] = label_encoder.fit_transform(df['Gender'])
 
     X = df[['Age', 'Gender', 'Addicted_Score']].values
 
-    # Clustering
     kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
     kmeans.fit(X)
     df['Cluster'] = kmeans.labels_
@@ -144,10 +139,7 @@ def clustering_png():
 
 @app.route('/EDA')
 def info_view():
-    # Cargar el archivo CSV real
     
-
-    # Captura la salida de df.info() en un string
     buffer = io.StringIO()
     df.info(buf=buffer)
     info_str = buffer.getvalue()
@@ -156,10 +148,7 @@ def info_view():
 
 @app.route('/head')
 def show_data():
-    # Cargar el CSV real
     
-
-    # Obtener los primeros 10 registros como HTML (puedes cambiar el número si deseas)
     table_html = df.head(10).to_html(classes='table table-striped', index=False)
 
     return render_template('head.html', table=table_html)
@@ -169,7 +158,6 @@ def show_data():
 def mostrar_grafica():
     
 
-    # Crear gráfico
     plt.figure(figsize=(8, 5))
     df['Addicted_Score'].hist(bins=15, edgecolor='black')
     plt.title('Distribución del Puntaje de Adicción')
@@ -177,7 +165,6 @@ def mostrar_grafica():
     plt.ylabel('Frecuencia')
     plt.grid(axis='y', alpha=0.75)
 
-    # Guardar la imagen en un buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
@@ -190,13 +177,11 @@ def mostrar_grafica():
 def mostrar_boxplot():
     
 
-    # Crear boxplot
     plt.figure(figsize=(8, 5))
     sns.boxplot(x=df['Addicted_Score'])
     plt.title('Distribución y Outliers del Puntaje de Adicción')
     plt.xlabel('Puntaje de Adicción')
 
-    # Guardar en buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
@@ -210,14 +195,12 @@ def mostrar_boxplot():
 def grafica_relacion():
     
 
-    # Crear el countplot
     plt.figure(figsize=(8, 5))
     sns.countplot(x='Relationship_Status', data=df)
     plt.title('Distribución de Estado de Relación')
     plt.xlabel('Estado de Relación')
     plt.ylabel('Frecuencia')
 
-    # Convertir la gráfica a imagen base64
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
@@ -231,15 +214,12 @@ def grafica_relacion():
 def matriz_correlaciones():
     
 
-    # Calcular la matriz de correlación
     corr_mat = df.corr(numeric_only=True)
 
-    # Crear el heatmap
     plt.figure(figsize=(10, 8))
     sns.heatmap(corr_mat, annot=True, cmap='coolwarm', fmt=".2f")
     plt.title('Matriz de Correlaciones')
 
-    # Convertir imagen a base64
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
