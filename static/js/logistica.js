@@ -4,6 +4,7 @@ async function cargarDatosLogistica() {
 
   const reales = data.reales;
   const predicciones = data.predicciones;
+  const curva = data.curva_logistica;  // <- nueva curva
 
   const ctx = document.getElementById('graficoLogistico').getContext('2d');
   new Chart(ctx, {
@@ -20,6 +21,16 @@ async function cargarDatosLogistica() {
           data: predicciones,
           backgroundColor: 'red',
           pointStyle: 'cross'
+        },
+        {
+          type: 'line',
+          label: 'Curva Logística',
+          data: curva,
+          borderColor: 'green',
+          borderWidth: 2,
+          fill: false,
+          tension: 0.4, // suaviza la línea
+          pointRadius: 0 // oculta los puntos
         }
       ]
     },

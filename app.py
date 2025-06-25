@@ -15,7 +15,9 @@ import base64
 import io
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
+global df
 
+df = pd.read_csv("Students Social Media Addiction.csv")
 
 
 app = Flask(__name__)
@@ -48,7 +50,6 @@ def clustering():
 # API para datos de regresión
 @app.route('/api/regresion')
 def api_regresion():
-    df = pd.read_csv("Students Social Media Addiction.csv")
     X = df[['Avg_Daily_Usage_Hours']].values
     y = df['Mental_Health_Score'].values
 
@@ -65,7 +66,7 @@ def api_regresion():
 # API para regresión logística
 @app.route('/api/logistica')
 def api_logistica():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
     X = df[['Avg_Daily_Usage_Hours']].values
     y = df['Affects_Academic_Performance'].apply(lambda x: 1 if x == "Yes" else 0).values
 
@@ -77,11 +78,15 @@ def api_logistica():
     reales = [{"x": float(x[0]), "y": int(y)} for x, y in zip(X_test, y_test)]
     predicciones = [{"x": float(x[0]), "y": int(y)} for x, y in zip(X_test, y_pred)]
 
-    return jsonify({"reales": reales, "predicciones": predicciones})
+    x_vals = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
+    y_probs = modelo.predict_proba(x_vals)[:, 1]  # Probabilidad de clase 1
+    curva = [{"x": float(x[0]), "y": float(y)} for x, y in zip(x_vals, y_probs)]
+
+    return jsonify({"reales": reales, "predicciones": predicciones, "curva_logistica": curva})
 
 @app.route('/arbol.png')
 def arbol_png():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
     X = df[['Avg_Daily_Usage_Hours']].values
     y = df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}).astype(int).values
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
@@ -102,7 +107,7 @@ def arbol_png():
 
 @app.route('/clustering.png')
 def clustering_png():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
     
     # Codificamos género
     label_encoder = LabelEncoder()
@@ -140,7 +145,7 @@ def clustering_png():
 @app.route('/EDA')
 def info_view():
     # Cargar el archivo CSV real
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Captura la salida de df.info() en un string
     buffer = io.StringIO()
@@ -152,7 +157,7 @@ def info_view():
 @app.route('/head')
 def show_data():
     # Cargar el CSV real
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Obtener los primeros 10 registros como HTML (puedes cambiar el número si deseas)
     table_html = df.head(10).to_html(classes='table table-striped', index=False)
@@ -162,7 +167,7 @@ def show_data():
 
 @app.route('/grafica')
 def mostrar_grafica():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Crear gráfico
     plt.figure(figsize=(8, 5))
@@ -183,7 +188,7 @@ def mostrar_grafica():
 
 @app.route('/boxplot')
 def mostrar_boxplot():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Crear boxplot
     plt.figure(figsize=(8, 5))
@@ -203,7 +208,7 @@ def mostrar_boxplot():
 
 @app.route('/relacion')
 def grafica_relacion():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Crear el countplot
     plt.figure(figsize=(8, 5))
@@ -224,7 +229,7 @@ def grafica_relacion():
 
 @app.route('/correlacion')
 def matriz_correlaciones():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     # Calcular la matriz de correlación
     corr_mat = df.corr(numeric_only=True)
@@ -245,7 +250,7 @@ def matriz_correlaciones():
 
 @app.route('/normalizacion')
 def normalizacion_view():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    
 
     hola_test = [
         'Age', 'Addicted_Score', 'Mental_Health_Score',

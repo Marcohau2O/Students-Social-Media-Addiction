@@ -1,0 +1,31 @@
+Student_ID,Age,Gender,Academic_Level,Country,Avg_Daily_Usage_Hours,Most_Used_Platform,Affects_Academic_Performance,Sleep_Hours_Per_Night,Mental_Health_Score,Relationship_Status,Conflicts_Over_Social_Media,Addicted_Score,Timestamp
+1,24,Male,High School,México,5.0,Instagram,No,6.0,7,Single,No,8,2025-06-24 13:33:33
+2,25,Female,PhD,Argentina,8.0,TikTok,No,7.6,7,In a Relationship,No,3,2024-07-29 10:12:47
+3,20,Male,PhD,México,8.6,YouTube,No,7.4,2,Married,No,6,2025-06-18 10:12:47
+4,25,Male,Bachelor,Argentina,7.3,Facebook,No,8.7,6,Single,No,3,2025-01-15 10:12:47
+5,22,Other,Bachelor,Chile,9.3,Instagram,No,5.7,3,Single,Yes,2,2025-03-14 10:12:47
+6,30,Other,PhD,Chile,5.3,YouTube,No,6.2,5,Married,Yes,9,2025-02-13 10:12:47
+7,26,Other,Master,Colombia,8.5,TikTok,Yes,8.4,6,Single,No,5,2025-05-13 10:12:47
+8,17,Male,PhD,Perú,8.9,Instagram,No,8.4,1,In a Relationship,No,8,2025-04-07 10:12:47
+9,23,Female,High School,Chile,5.6,Facebook,Yes,4.3,2,Single,No,8,2025-06-24 10:12:47
+10,23,Other,PhD,Argentina,3.9,Instagram,No,6.2,7,Single,Yes,6,2025-04-26 10:12:47
+11,29,Other,Bachelor,Perú,5.8,YouTube,No,7.9,8,Married,No,10,2024-08-15 10:12:47
+12,22,Other,Master,Chile,2.8,Twitter,Yes,6.3,4,In a Relationship,No,2,2025-04-08 10:12:47
+13,23,Female,Master,Colombia,2.4,Twitter,Yes,4.1,2,In a Relationship,No,5,2024-11-07 10:12:47
+14,23,Other,Master,Colombia,8.7,TikTok,No,4.6,8,Married,Yes,8,2024-12-22 10:12:47
+15,26,Female,PhD,Colombia,4.2,TikTok,No,8.6,10,Married,Yes,2,2024-12-06 10:12:47
+16,28,Male,Master,México,5.6,YouTube,Yes,7.1,9,Single,No,5,2024-06-26 10:12:47
+17,26,Female,PhD,Argentina,5.0,Twitter,Yes,4.7,6,Single,Yes,5,2025-05-11 10:12:47
+18,23,Female,PhD,Perú,4.8,YouTube,No,6.4,9,In a Relationship,Yes,6,2024-11-23 10:12:47
+19,27,Other,Bachelor,Perú,3.3,Twitter,Yes,4.6,3,In a Relationship,No,2,2024-12-03 10:12:47
+20,21,Other,Bachelor,Argentina,9.5,Twitter,Yes,4.8,8,In a Relationship,Yes,10,2025-03-20 10:12:47
+21,18,Other,High School,Argentina,9.4,TikTok,Yes,6.5,4,In a Relationship,Yes,4,2024-10-08 10:12:47
+22,28,Female,PhD,Argentina,9.4,YouTube,Yes,7.3,4,Single,No,8,2024-12-10 10:12:47
+23,17,Male,Master,México,3.0,Twitter,No,7.9,1,Single,Yes,9,2024-07-28 10:12:47
+24,27,Other,PhD,Perú,1.5,TikTok,No,6.1,10,In a Relationship,Yes,8,2025-01-30 10:12:47
+25,23,Other,Master,Chile,6.4,TikTok,Yes,6.2,1,Single,Yes,8,2024-07-01 10:12:47
+26,25,Male,Bachelor,Perú,3.6,YouTube,Yes,4.3,10,In a Relationship,No,9,2025-05-30 10:12:47
+27,30,Other,PhD,Argentina,1.5,Facebook,No,6.0,9,Married,Yes,1,2025-01-01 10:12:47
+28,24,Male,High School,Colombia,3.7,Twitter,Yes,5.9,5,In a Relationship,Yes,9,2024-12-15 10:12:47
+29,21,Male,PhD,México,3.9,Twitter,Yes,4.0,2,Single,No,5,2024-12-31 10:12:47
+30,17,Male,Master,Chile,9.0,Twitter,Yes,5.8,8,Single,No,8,2024-10-21 10:12:47
