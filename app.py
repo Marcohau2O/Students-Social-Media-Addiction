@@ -1,255 +1,185 @@
-from flask import Flask, render_template, jsonify, send_file
+from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('Agg') 
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import LabelEncoder
-from mpl_toolkits.mplot3d import Axes3D
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import base64
 import io
-import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler
-global df
-
-df = pd.read_csv("Students Social Media Addiction.csv")
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.cluster import KMeans
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 
 
 app = Flask(__name__)
 
-# Página principal
+# Cargar datos globalmente
+df = pd.read_csv("Students Social Media Addiction.csv")
+
+# Modelo de Regresión Lineal (Ej: predecir Mental_Health_Score)
+modelo_lineal = LinearRegression()
+modelo_lineal.fit(df[['Avg_Daily_Usage_Hours']], df['Mental_Health_Score'])
+
+# Modelo de Regresión Logística (Ej: predecir si afecta rendimiento)
+modelo_logistico = LogisticRegression()
+modelo_logistico.fit(df[['Avg_Daily_Usage_Hours']], df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}))
+
 @app.route('/')
-def home():
-    return render_template('index.html')
+def dashboard():
+    return render_template("dashboard.html")
 
-# Vista de regresión lineal
-@app.route('/regresion')
-def regresion():
-    return render_template('regresion.html')
-
-# Vista de logistica
-@app.route('/logistica')
-def logistica():
-    return render_template('logistica.html')
-
-# Vista de Arbol
-@app.route('/arbol')
-def arbol():
-    return render_template('arbol.html')
-
-# Vista de K-Means Clustering
-@app.route('/clustering')
-def clustering():
-    return render_template('clustering.html')
-
-@app.route('/api/regresion')
-def api_regresion():
-    X = df[['Avg_Daily_Usage_Hours']].values
-    y = df['Mental_Health_Score'].values
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+@app.route('/lineal', methods=['GET', 'POST'])
+def linea_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
     modelo = LinearRegression()
-    modelo.fit(X_train, y_train)
-    y_pred = modelo.predict(X_test)
+    modelo.fit(df[['Avg_Daily_Usage_Hours']], df['Mental_Health_Score'])
 
-    reales = [{"x": float(x[0]), "y": float(y)} for x, y in zip(X_test, y_test)]
-    prediccion = [{"x": float(x[0]), "y": float(y)} for x, y in zip(X_test, y_pred)]
+    datos_reales = [{"x": float(x), "y": float(y)} for x, y in zip(df['Avg_Daily_Usage_Hours'], df['Mental_Health_Score'])]
 
-    return jsonify({"reales": reales, "prediccion": prediccion})
+    if request.method == 'POST':
+        horas = float(request.form['horas'])
+        pred = modelo.predict([[horas]])[0]
+        punto_usuario = {"x": horas, "y": round(pred, 2)}
+        return render_template("lineal_dashboard.html", datos_reales=datos_reales, punto_usuario=punto_usuario, resultado=round(pred, 2), horas=horas)
 
-@app.route('/api/logistica')
-def api_logistica():
-    
+    # En GET muestra sin punto del usuario
+    return render_template("lineal_dashboard.html", datos_reales=datos_reales, punto_usuario={"x": None, "y": None})
+
+@app.route('/logistica', methods=['GET', 'POST'])
+def logistica_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
     X = df[['Avg_Daily_Usage_Hours']].values
-    y = df['Affects_Academic_Performance'].apply(lambda x: 1 if x == "Yes" else 0).values
+    y = df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}).values
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelo = LogisticRegression()
     modelo.fit(X, y)
-    y_pred = modelo.predict(X_test)
 
-    reales = [{"x": float(x[0]), "y": int(y)} for x, y in zip(X_test, y_test)]
-    predicciones = [{"x": float(x[0]), "y": int(y)} for x, y in zip(X_test, y_pred)]
+    datos_reales = [{"x": float(x[0]), "y": int(y_)} for x, y_ in zip(X, y)]
 
+    # Curva logística
     x_vals = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-    y_probs = modelo.predict_proba(x_vals)[:, 1]  # Probabilidad de clase 1
-    curva = [{"x": float(x[0]), "y": float(y)} for x, y in zip(x_vals, y_probs)]
+    y_probs = modelo.predict_proba(x_vals)[:, 1]
+    curva_logistica = [{"x": float(x[0]), "y": float(y)} for x, y in zip(x_vals, y_probs)]
 
-    return jsonify({"reales": reales, "predicciones": predicciones, "curva_logistica": curva})
+    # Variables por defecto
+    punto_usuario = {"x": None, "y": None}
+    resultado = None
+    horas = None
 
-@app.route('/arbol.png')
-def arbol_png():
-    
-    X = df[['Avg_Daily_Usage_Hours']].values
-    y = df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}).astype(int).values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+    if request.method == 'POST':
+        horas = float(request.form['horas'])
+        pred = int(modelo.predict([[horas]])[0])
+        resultado = "Sí afecta el rendimiento" if pred == 1 else "No afecta el rendimiento"
+        punto_usuario = {"x": float(horas), "y": int(pred)}
 
-    modelo = DecisionTreeClassifier()
-    modelo.fit(X_train, y_train)
+    return render_template("logistica_dashboard.html",
+                           datos_reales=datos_reales,
+                           curva_logistica=curva_logistica,
+                           punto_usuario=punto_usuario,
+                           resultado=resultado,
+                           horas=horas)
 
-    fig, ax = plt.subplots(figsize=(25, 6))
-    plot_tree(modelo, feature_names=['Avg_Daily_Usage_Hours'], class_names=['No', 'Yes'], filled=True, rounded=True, fontsize=6, ax=ax)
-    plt.title("Árbol de Decisión")
+@app.route('/arbol', methods=['GET', 'POST'])
+def arbol_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
 
+    # Variables que vamos a usar
+    features = ['Avg_Daily_Usage_Hours', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media']
+    target = 'Affects_Academic_Performance'
+
+    # Preparamos los datos
+    X = df[features]
+    y = df[target].map({'Yes': 1, 'No': 0}).astype(int)
+
+    modelo = DecisionTreeClassifier(max_depth=3, random_state=42)
+    modelo.fit(X, y)
+
+    # Por defecto, sin datos del usuario
+    resultado = None
+    datos_usuario = {}
+
+    if request.method == 'POST':
+        try:
+            datos_usuario = {
+                'Avg_Daily_Usage_Hours': float(request.form['horas']),
+                'Sleep_Hours_Per_Night': float(request.form['sueño']),
+                'Conflicts_Over_Social_Media': int(request.form['conflictos'])
+            }
+            entrada = pd.DataFrame([datos_usuario])
+            pred = modelo.predict(entrada)[0]
+            resultado = "Sí afecta el rendimiento" if pred == 1 else "No afecta el rendimiento"
+        except Exception as e:
+            resultado = f"Error en la predicción: {str(e)}"
+
+    # Generamos imagen del árbol
+    fig, ax = plt.subplots(figsize=(12, 5))
+    plot_tree(modelo, feature_names=features, class_names=["No", "Sí"], filled=True, rounded=True, fontsize=10)
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
-    buf.seek(0)
     plt.close(fig)
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
 
-    return send_file(buf, mimetype='image/png')
+    return render_template("arbol_dashboard.html", resultado=resultado, datos_usuario=datos_usuario, arbol_img=img_base64)
 
-@app.route('/clustering.png')
-def clustering_png():
-    
+@app.route('/clustering', methods=['GET', 'POST'])
+def clustering_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
+
     label_encoder = LabelEncoder()
     df['Gender'] = label_encoder.fit_transform(df['Gender'])
 
     X = df[['Age', 'Gender', 'Addicted_Score']].values
+    modeloG = KMeans(n_clusters=3, n_init=10, random_state=42)
+    modeloG.fit(X)
+    df['Cluster'] = modeloG.labels_
 
-    kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-    kmeans.fit(X)
-    df['Cluster'] = kmeans.labels_
+    resultado = None
+    datos_usuario = {}
 
-    # Gráfico 3D
+    if request.method == 'POST':
+        try:
+            datos_usuario = {
+                'Age': float(request.form['edad']),
+                'Gender': int(request.form['genero']),
+                'Addicted_Score': float(request.form['adiccion'])
+            }
+            entrada = np.array([[datos_usuario['Age'], datos_usuario['Age'], datos_usuario['Addicted_Score']]])
+            cluster_usuario = int(modeloG.predict(entrada)[0])
+            resultado = f"Perteneces al Grupo (Cluster): {cluster_usuario}"
+        except Exception as e:
+            resultado = f"Error en la predicción: {str(e)}"
+
     fig = plt.figure(figsize=(10, 7))
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
 
-    scatter = ax.scatter(
-        df['Age'], df['Gender'], df['Addicted_Score'],
-        c=df['Cluster'], cmap='rainbow', s=70, edgecolor='black'
-    )
+    scatter = ax.scatter(df['Age'], df['Gender'], df['Addicted_Score'],
+                     c=df['Cluster'], cmap='rainbow', s=70, edgecolors='black')
 
-    ax.set_title('Edad vs Género vs Puntaje de Adicción')
+    if datos_usuario:
+        ax.scatter(datos_usuario['Age'], datos_usuario['Gender'], datos_usuario['Addicted_Score'],
+                   c='black', s=200, marker='*', label='Tu', edgecolors='white')
+    
+    ax.set_title('Edad vs Género vs Adicción')
     ax.set_xlabel('Edad')
-    ax.set_ylabel('Género (0 = Female, 1 = Male)')
-    ax.set_zlabel('Puntaje de Adicción')
+    ax.set_ylabel('Género (0=F, 1=M)')
+    ax.set_zlabel('Adicción')
+
     fig.colorbar(scatter, label='Grupo (Cluster)')
+    ax.legend()
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    plt.close(fig)
-    return send_file(buf, mimetype='image/png')
-
-
-@app.route('/EDA')
-def info_view():
-    
-    buffer = io.StringIO()
-    df.info(buf=buffer)
-    info_str = buffer.getvalue()
-
-    return render_template('EDA.html', info=info_str)
-
-@app.route('/head')
-def show_data():
-    
-    table_html = df.head(10).to_html(classes='table table-striped', index=False)
-
-    return render_template('head.html', table=table_html)
-
-
-@app.route('/grafica')
-def mostrar_grafica():
-    
-
-    plt.figure(figsize=(8, 5))
-    df['Addicted_Score'].hist(bins=15, edgecolor='black')
-    plt.title('Distribución del Puntaje de Adicción')
-    plt.xlabel('Puntaje de Adicción')
-    plt.ylabel('Frecuencia')
-    plt.grid(axis='y', alpha=0.75)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    arbol_img = base64.b64encode(buf.read()).decode('utf-8')
     plt.close()
 
-    return render_template('grafica.html', img_data=img_base64)
-
-@app.route('/boxplot')
-def mostrar_boxplot():
-    
-
-    plt.figure(figsize=(8, 5))
-    sns.boxplot(x=df['Addicted_Score'])
-    plt.title('Distribución y Outliers del Puntaje de Adicción')
-    plt.xlabel('Puntaje de Adicción')
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-
-    return render_template('boxplot.html', img_data=img_base64)
-
-
-@app.route('/relacion')
-def grafica_relacion():
-    
-
-    plt.figure(figsize=(8, 5))
-    sns.countplot(x='Relationship_Status', data=df)
-    plt.title('Distribución de Estado de Relación')
-    plt.xlabel('Estado de Relación')
-    plt.ylabel('Frecuencia')
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-
-    return render_template('relacion.html', img_data=img_base64)
-
-
-@app.route('/correlacion')
-def matriz_correlaciones():
-    
-
-    corr_mat = df.corr(numeric_only=True)
-
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(corr_mat, annot=True, cmap='coolwarm', fmt=".2f")
-    plt.title('Matriz de Correlaciones')
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close()
-
-    return render_template('correlacion.html', img_data=img_base64)
-
-@app.route('/normalizacion')
-def normalizacion_view():
-    
-
-    hola_test = [
-        'Age', 'Addicted_Score', 'Mental_Health_Score',
-        'Conflicts_Over_Social_Media', 'Sleep_Hours_Per_Night',
-        'Avg_Daily_Usage_Hours'
-    ]
-
-    scaler = MinMaxScaler()
-    df_normalized = df.copy()
-    df[hola_test] = scaler.fit_transform(df_normalized[hola_test])
-
-    head_table = df[hola_test].head().to_html(classes='table table-bordered', index=False)
-    min_vals = df[hola_test].min().to_frame(name='Mínimo').T.to_html(classes='table table-sm table-success', index=False)
-    max_vals = df[hola_test].max().to_frame(name='Máximo').T.to_html(classes='table table-sm table-danger', index=False)
-
-    return render_template('normalizacion.html', head=head_table, minimo=min_vals, maximo=max_vals)
-    
-
-    
+    return render_template("clustering_dashboard.html",
+                           resultado=resultado,
+                           datos_usuario=datos_usuario,
+                           arbol_img=arbol_img)
 
 if __name__ == '__main__':
     app.run(debug=True)
