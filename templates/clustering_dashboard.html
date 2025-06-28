@@ -8,6 +8,9 @@
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-2xl font-bold mb-4">Clasificación con K-Means Clustering</h2>
+    <a href="/" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+  Volver
+</a>
 
     <form method="POST" class="grid gap-4 grid-cols-1 md:grid-cols-2">
       <div>
@@ -33,12 +36,26 @@
       </div>
     </form>
 
-    {% if resultado %}
-    <div class="mt-6 p-4 bg-blue-100 border-l-4 border-blue-500 rounded">
-      <strong>Resultado:</strong> {{ resultado }}
-    </div>
-    {% endif %}
-
+{% if resultado %}
+<div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-2xl mx-auto">
+  <!-- Título principal -->
+  <h2 class="text-2xl font-bold text-gray-800 mb-4">Resultado de la predicción</h2>
+  
+  <!-- Resultado destacado -->
+  <div class="mb-5 p-4 {% if 'Sí' in resultado %}bg-red-50 border-l-4 border-red-500{% else %}bg-green-50 border-l-4 border-green-500{% endif %} rounded">
+    <h3 class="text-xl font-semibold {% if 'Sí' in resultado %}text-red-700{% else %}text-green-700{% endif %}">
+      {{ resultado }}
+    </h3>
+  </div>
+  
+  <!-- Explicación -->
+  <div class="prose prose-sm text-gray-700">
+    <p>El modelo de árbol de decisiones ha determinado que {% if "Sí" in resultado %}existe{% else %}no existe{% endif %} una afectación significativa al rendimiento académico con los datos proporcionados.</p>
+    
+    
+  </div>
+</div>
+{% endif %}
     <div class="mt-6">
       <h3 class="text-xl font-semibold mb-2">Visualización 3D del Clustering</h3>
       <img src="data:image/png;base64,{{ arbol_img }}" alt="Gráfico Clustering" class="rounded border">
