@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Predicción de Estado de Relación</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-2xl font-bold mb-4">¿Está en una relación?</h2>
-    <a href="/dashboard" class="inline-block mb-4 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+    <a href="/dashboard"
+      class="inline-block mb-4 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
       Volver
     </a>
 
@@ -16,25 +19,25 @@
       <div>
         <label class="block">Género (0 = Femenino, 1 = Masculino):</label>
         <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Gender', '') }}">
+          value="{{ datos_usuario.get('Gender', '') }}">
       </div>
 
       <div>
         <label class="block">Edad:</label>
         <input name="edad" type="number" step="1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Age', '') }}">
+          value="{{ datos_usuario.get('Age', '') }}">
       </div>
 
       <div>
         <label class="block">Puntaje de Adicción:</label>
         <input name="adiccion" type="number" step="0.1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Addicted_Score', '') }}">
+          value="{{ datos_usuario.get('Addicted_Score', '') }}">
       </div>
 
       <div>
         <label class="block">Conflictos por redes sociales:</label>
         <input name="conflictos" type="number" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Conflicts_Over_Social_Media', '') }}">
+          value="{{ datos_usuario.get('Conflicts_Over_Social_Media', '') }}">
       </div>
 
       <div class="md:col-span-2">
@@ -48,12 +51,39 @@
       <p class="text-lg text-gray-800">Estado de relación estimado:</p>
       <p class="text-2xl font-bold text-pink-900 mt-1">{{ resultado }}</p>
     </div>
+
+    <div class="mt-4 p-4 bg-red-100 border border-red-300 rounded-lg shadow">
+      <h3 class="text-xl font-bold text-red-900 mb-2">Análisis Personalizado</h3>
+      <p class="text-red-800 mb-2">
+        Este resultado se basa en los datos proporcionados, considerando patrones que podrían influir en el estado de
+        una relación actual.
+      </p>
+      <ul class="list-disc list-inside text-red-800 ml-2 mb-3">
+        <li><strong>Edad:</strong> {{ datos_usuario.get('Age', '?') }} años</li>
+        <li><strong>Género:</strong> {% if datos_usuario.get('Gender', '') == '1' %}Masculino{% else %}Femenino{% endif
+          %}</li>
+        <li><strong>Puntaje de adicción:</strong> {{ datos_usuario.get('Addicted_Score', '?') }}</li>
+        <li><strong>Conflictos por redes sociales:</strong> {{ datos_usuario.get('Conflicts_Over_Social_Media', '?') }}
+        </li>
+      </ul>
+      <p class="text-red-900">
+        La inteligencia artificial ha analizado estos factores para inferir la posibilidad de que estés actualmente en
+        una relación amorosa.
+        Ten en cuenta que este resultado es solo orientativo y no refleja tu valor personal ni la calidad real de tus
+        vínculos.
+      </p>
+      <p class="text-sm text-red-700 italic mt-2">
+        Las redes sociales pueden influir, pero lo más importante sigue siendo la comunicación, el respeto y el
+        equilibrio emocional.
+      </p>
+    </div>
     {% endif %}
+
 
     {% if grafica_img %}
     <div class="mt-6 bg-white border border-pink-300 rounded-lg shadow p-4">
-        <h3 class="text-xl font-bold text-pink-800 mb-2">Visualización de la predicción</h3>
-        <img src="data:image/png;base64,{{ grafica_img }}" class="w-full max-w-md mx-auto">
+      <h3 class="text-xl font-bold text-pink-800 mb-2">Visualización de la predicción</h3>
+      <img src="data:image/png;base64,{{ grafica_img }}" class="w-full max-w-md mx-auto">
     </div>
     {% endif %}
   </div>
@@ -76,4 +106,5 @@
     })
   </script>
 </body>
+
 </html>

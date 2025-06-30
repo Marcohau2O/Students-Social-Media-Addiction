@@ -38,7 +38,7 @@ def dashboard():
 
 @app.route('/lineal', methods=['GET', 'POST'])
 def linea_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    df = pd.read_csv("2_IDYGS91.csv")
     modelo = LinearRegression()
     modelo.fit(df[['Avg_Daily_Usage_Hours']], df['Mental_Health_Score'])
 
