@@ -8,9 +8,15 @@
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-6xl mx-auto">
 
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard de Modelos Predictivos</h1>
-      <p class="text-lg text-gray-600">Seleccione un modelo para analizar la adicción a redes sociales</p>
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard de Modelos Predictivos</h1>
+        <p class="text-lg text-gray-600">Seleccione un modelo para analizar la adicción a redes sociales</p>
+      </div>
+      <button onclick="cerrarSesion()"
+      class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+        Cerrar Sesion
+      </button>
     </div>
 
     
@@ -51,10 +57,38 @@
         </div>
       </div>
 
-    
+    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold text-indigo-600 mb-2">Clasificador de Plataforma</h2>
+        <p class="text-gray-600 mb-4">Predice la red social más usada por un estudiante.</p>
+        <a href="/plataforma" class="inline-block bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg transition-colors">Ir al Modelo</a>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold text-pink-600 mb-2">Estado de Relación</h2>
+        <p class="text-gray-600 mb-4">Predice si un estudiante está en una relación con base en su perfil.</p>
+        <a href="/relacion_estado" class="inline-block bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg transition-colors">Ir al Modelo</a>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+      <div class="p-6">
+        <h2 class="text-2xl font-bold text-purple-600 mb-2">Red Neuronal (MLP)</h2>
+        <p class="text-gray-600 mb-4">Predice si tu nivel de adicción es bajo, medio o alto.</p>
+        <a href="/red_neuronal" class="inline-block bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg transition-colors">Ir al Modelo</a>
+      </div>
+    </div>
 
       </div>
     </div>
   </div>
+  <script>
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioDatos");
+      window.location.href = "/";
+    }
+  </script>
 </body>
 </html>

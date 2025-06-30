@@ -9,6 +9,8 @@ import io
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.cluster import KMeans
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 
@@ -27,6 +29,10 @@ modelo_logistico = LogisticRegression()
 modelo_logistico.fit(df[['Avg_Daily_Usage_Hours']], df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}))
 
 @app.route('/')
+def formulario():
+    return render_template('formulario.html')
+
+@app.route('/dashboard')
 def dashboard():
     return render_template("dashboard.html")
 
@@ -44,7 +50,7 @@ def linea_dashboard():
         punto_usuario = {"x": horas, "y": round(pred, 2)}
         return render_template("lineal_dashboard.html", datos_reales=datos_reales, punto_usuario=punto_usuario, resultado=round(pred, 2), horas=horas)
 
-    # En GET muestra sin punto del usuario
+    
     return render_template("lineal_dashboard.html", datos_reales=datos_reales, punto_usuario={"x": None, "y": None})
 
 @app.route('/logistica', methods=['GET', 'POST'])
@@ -58,12 +64,12 @@ def logistica_dashboard():
 
     datos_reales = [{"x": float(x[0]), "y": int(y_)} for x, y_ in zip(X, y)]
 
-    # Curva logística
+    
     x_vals = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
     y_probs = modelo.predict_proba(x_vals)[:, 1]
     curva_logistica = [{"x": float(x[0]), "y": float(y)} for x, y in zip(x_vals, y_probs)]
 
-    # Variables por defecto
+    
     punto_usuario = {"x": None, "y": None}
     resultado = None
     horas = None
@@ -85,18 +91,18 @@ def logistica_dashboard():
 def arbol_dashboard():
     df = pd.read_csv("Students Social Media Addiction.csv")
 
-    # Variables que vamos a usar
+    
     features = ['Avg_Daily_Usage_Hours', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media']
     target = 'Affects_Academic_Performance'
 
-    # Preparamos los datos
+    
     X = df[features]
     y = df[target].map({'Yes': 1, 'No': 0}).astype(int)
 
     modelo = DecisionTreeClassifier(max_depth=3, random_state=42)
     modelo.fit(X, y)
 
-    # Por defecto, sin datos del usuario
+    
     resultado = None
     datos_usuario = {}
 
@@ -113,7 +119,6 @@ def arbol_dashboard():
         except Exception as e:
             resultado = f"Error en la predicción: {str(e)}"
 
-    # Generamos imagen del árbol
     fig, ax = plt.subplots(figsize=(12, 5))
     plot_tree(modelo, feature_names=features, class_names=["No", "Sí"], filled=True, rounded=True, fontsize=10)
     buf = io.BytesIO()
@@ -180,6 +185,183 @@ def clustering_dashboard():
                            resultado=resultado,
                            datos_usuario=datos_usuario,
                            arbol_img=arbol_img)
+
+@app.route('/plataforma', methods=['GET', 'POST'])
+def plataforma_dashboard():
+    df = pd.read_csv('Students Social Media Addiction.csv')
+
+    le_platform = LabelEncoder()
+    le_gender = LabelEncoder()
+    df['Most_Used_Platform'] = le_platform.fit_transform(df['Most_Used_Platform'])
+    df['Gender'] = le_gender.fit_transform(df['Gender'])
+
+    X = df[['Age', 'Gender', 'Avg_Daily_Usage_Hours', 'Addicted_Score']] 
+    y = df['Most_Used_Platform']
+
+    modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+    modelo.fit(X, y)
+
+    resultado = None
+    datos_usuario = {}
+    grafica_img = None
+
+    if request.method == 'POST':
+        try:
+            datos_usuario = {
+                'Age': float(request.form['edad']),
+                'Gender': int(request.form['genero']),
+                'Avg_Daily_Usage_Hours': float(request.form['horas']),
+                'Addicted_Score': float(request.form['adiccion'])
+            }
+            entrada = pd.DataFrame([datos_usuario])
+            probs = modelo.predict_proba(entrada)[0]
+            clases = le_platform.inverse_transform(modelo.classes_)
+            pred = modelo.predict(entrada)[0]
+            resultado = le_platform.inverse_transform([pred])[0]
+        except Exception as e:
+            resultado = f"Error en la predicción: {str(e)}"
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(clases, probs, color="#6366f1")
+        ax.set_ylim(0, 1)
+        ax.set_title("Probabilidad por Plataforma Usada")
+        ax.set_ylabel("Probabilidad")
+        ax.grid(axis='y', linestyle='--', alpha=0.6)
+        ax.tick_params(axis='x', labelrotation=15)
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close()
+        buf.seek(0)
+        grafica_img = base64.b64encode(buf.read()).decode('utf-8')
+
+    return render_template("plataforma_dashboard.html",
+                           resultado=resultado,
+                           datos_usuario=datos_usuario,
+                           grafica_img=grafica_img)
+
+@app.route('/relacion_estado', methods=['GET', 'POST'])
+def relacion_estado_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
+
+    le_status = LabelEncoder()
+    le_gender = LabelEncoder()
+
+    df['Relationship_Status'] = le_status.fit_transform(df['Relationship_Status'])
+    df['Gender'] = le_gender.fit_transform(df['Gender'])
+
+    features = ['Gender', 'Age', 'Addicted_Score', 'Conflicts_Over_Social_Media']
+    X = df[features]
+    y = df['Relationship_Status']
+
+    modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+    modelo.fit(X, y)
+
+    resultado = None
+    datos_usuario = {}
+    grafica_img = None
+
+    if request.method == 'POST':
+        try:
+            datos_usuario = {
+                'Gender': int(request.form['genero']),
+                'Age': float(request.form['edad']),
+                'Addicted_Score': float(request.form['adiccion']),
+                'Conflicts_Over_Social_Media': int(request.form['conflictos'])
+            }
+            entrada = pd.DataFrame([datos_usuario])
+            probs = modelo.predict_proba(entrada)[0]
+            pred = modelo.predict(entrada)[0]
+            resultado = le_status.inverse_transform([pred])[0]
+
+            clases = le_status.inverse_transform(modelo.classes_)
+        except Exception as e:
+            resultado = f"Error en la predicción: {str(e)}"
+
+        fig, ax = plt.subplots()
+        ax.bar(clases, probs, color="#ec4899")
+        ax.set_ylim(0, 1)
+        ax.set_title("Probabilidad por Estado de Relación")
+        ax.set_ylabel("Probabilidad")
+        ax.set_xlabel("Estado")
+        ax.grid(axis='y', linestyle='--', alpha=0.6)
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        grafica_img = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close()
+
+    return render_template("relacion_estado_dashboard.html",
+                           resultado=resultado,
+                           datos_usuario=datos_usuario,
+                           grafica_img=grafica_img)
+
+@app.route('/red_neuronal', methods=['GET', 'POST'])
+def red_neuronal_dashboard():
+    df = pd.read_csv("Students Social Media Addiction.csv")
+
+    le_gender = LabelEncoder()
+    df['Gender'] = le_gender.fit_transform(df['Gender'])
+
+    def clasificar_adiccion(valor):
+        if valor < 4:
+            return 0
+        elif valor < 7:
+            return 1
+        else:
+            return 2
+
+    df['Nivel_Adiccion'] = df['Addicted_Score'].apply(clasificar_adiccion)
+
+    features = ['Avg_Daily_Usage_Hours', 'Age', 'Gender', 'Sleep_Hours_Per_Night']
+    X = df[features]
+    y = df['Nivel_Adiccion']
+
+    modelo = MLPClassifier(hidden_layer_sizes=(10,), max_iter=500, random_state=42)
+    modelo.fit(X, y)
+
+    resultado = None
+    datos_usuario = {}
+    grafica_img = None
+
+    niveles = {0: "Bajo", 1: "Medio", 2: "Alto"}
+
+    if request.method == 'POST':
+        try:
+            datos_usuario = {
+                'Avg_Daily_Usage_Hours': float(request.form['horas']),
+                'Age': float(request.form['edad']),
+                'Gender': int(request.form['genero']),
+                'Sleep_Hours_Per_Night': float(request.form['sueño'])
+            }
+            entrada = pd.DataFrame([datos_usuario])
+            pred = modelo.predict(entrada)[0]
+            resultado = f"Nivel de adicción: {niveles[pred]}"
+
+            probabilidades = modelo.predict_proba(entrada)[0]
+
+            fig, ax = plt.subplots()
+            ax.bar(niveles.values(), probabilidades, color=["#34d399", "#fbbf24", "#ef4444"])
+            ax.set_ylim(0, 1)
+            ax.set_title("Probabilidad por Nivel de Adicción")
+            ax.set_ylabel("Probabilidad")
+            ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            grafica_img = base64.b64encode(buf.read()).decode('utf-8')
+            plt.close()
+
+        except Exception as e:
+            resultado = f"Error: {str(e)}"
+
+    return render_template("red_neuronal_dashboard.html",
+                           resultado=resultado,
+                           datos_usuario=datos_usuario,
+                           grafica_img=grafica_img)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

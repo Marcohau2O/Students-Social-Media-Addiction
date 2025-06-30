@@ -8,7 +8,7 @@
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-2xl font-bold mb-4">Clasificación con K-Means Clustering</h2>
-    <a href="/" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+    <a href="/dashboard" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
   Volver
 </a>
 
@@ -61,5 +61,22 @@
       <img src="data:image/png;base64,{{ arbol_img }}" alt="Gráfico Clustering" class="rounded border">
     </div>
   </div>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const datosGuardados = localStorage.getItem("usuarioDatos");
+
+    if (datosGuardados) {
+      const datos = JSON.parse(datosGuardados);
+
+      const edadInput = document.querySelector('input[name="edad"]');
+      const generoInput = document.querySelector('input[name="genero"]');
+      const adiccionInput = document.querySelector('input[name="adiccion"]');
+
+      if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
+      if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
+      if (adiccionInput && datos.adiccion !== undefined) adiccionInput.value = datos.adiccion;
+    }
+  });
+</script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 <body class="bg-gray-100 min-h-screen p-6">
   <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
     <h2 class="text-2xl font-bold mb-4">Regresión Logística: ¿Afecta tu rendimiento académico?</h2>
-    <a href="/" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+    <a href="/dashboard" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
   Volver
 </a>
 
@@ -117,6 +117,18 @@
         }
       }
     });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const data = localStorage.getItem("usuarioDatos");
+    if (data) {
+      const parsed = JSON.parse(data);
+      const inputHoras = document.querySelector('input[name="horas"]');
+      if (parsed.horas !== undefined && inputHoras) {
+        inputHoras.value = parsed.horas;
+      }
+    }
+  });
   </script>
 </body>
 </html>

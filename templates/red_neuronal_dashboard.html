@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Red Neuronal - Nivel de Adicción</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Red Neuronal: Predicción de Nivel de Adicción</h2>
+    <a href="/dashboard" class="inline-block mb-4 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+      Volver
+    </a>
+
+    <form method="POST" class="grid gap-4 grid-cols-1 md:grid-cols-2">
+      <div>
+        <label class="block">Horas de uso diario:</label>
+        <input name="horas" type="number" step="0.1" required class="w-full p-2 border rounded" value="{{ datos_usuario.get('Avg_Daily_Usage_Hours', '') }}">
+      </div>
+
+      <div>
+        <label class="block">Edad:</label>
+        <input name="edad" type="number" step="1" required class="w-full p-2 border rounded" value="{{ datos_usuario.get('Age', '') }}">
+      </div>
+
+      <div>
+        <label class="block">Género (0 = Femenino, 1 = Masculino):</label>
+        <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded" value="{{ datos_usuario.get('Gender', '') }}">
+      </div>
+
+      <div>
+        <label class="block">Horas de sueño por noche:</label>
+        <input name="sueño" type="number" step="0.1" required class="w-full p-2 border rounded" value="{{ datos_usuario.get('Sleep_Hours_Per_Night', '') }}">
+      </div>
+
+      <div class="md:col-span-2">
+        <button class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Predecir</button>
+      </div>
+    </form>
+
+    {% if resultado %}
+    <div class="mt-6 p-4 bg-purple-100 border border-purple-300 rounded-lg shadow">
+      <h3 class="text-xl font-bold text-purple-800 mb-2">Resultado</h3>
+      <p class="text-lg text-gray-800">{{ resultado }}</p>
+    </div>
+    {% endif %}
+
+    {% if grafica_img %}
+    <div class="mt-6 bg-white border border-gray-300 rounded-lg shadow p-4">
+        <h3 class="text-xl font-bold text-gray-700 mb-2">Visualización de las probabilidades</h3>
+        <img src="data:image/png;base64,{{ grafica_img }}" class="w-full max-w-md mx-auto">
+    </div>
+    {% endif %}
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const data = localStorage.getItem("usuarioDatos");
+      if (data) {
+        const datos = JSON.parse(data);
+
+        const edadInput = document.querySelector('input[name="edad"]');
+        const generoInput = document.querySelector('input[name="genero"]');
+        const horasInput = document.querySelector('input[name="horas"]');
+        const sueñoInput = document.querySelector('input[name="sueño"]');
+
+        if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
+        if (horasInput && datos.horas !== undefined) horasInput.value = datos.horas;
+        if (sueñoInput && datos.sueño !== undefined) sueñoInput.value = datos.sueño;
+        if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
+      }
+    })
+  </script>
+</body>
+</html>
