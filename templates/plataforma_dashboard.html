@@ -8,93 +8,99 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen p-6">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Clasificación: Plataforma Más Usada</h2>
-    <a href="/dashboard"
-      class="inline-block mb-4 px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
-      Volver
-    </a>
+  <div class="max-w-7xl mx-auto space-y-6">
 
-    <form method="POST" class="grid gap-4 grid-cols-1 md:grid-cols-2">
-      <div>
-        <label class="block">Edad:</label>
-        <input name="edad" type="number" required class="w-full p-2 border rounded"
-          value="{{ datos_usuario.get('Age', '') }}">
-      </div>
-
-      <div>
-        <label class="block">Género (0 = Femenino, 1 = Masculino):</label>
-        <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded"
-          value="{{ datos_usuario.get('Gender', '') }}">
-      </div>
-
-      <div>
-        <label class="block">Horas de uso diario:</label>
-        <input name="horas" type="number" step="0.1" required class="w-full p-2 border rounded"
-          value="{{ datos_usuario.get('Avg_Daily_Usage_Hours', '') }}">
-      </div>
-
-      <div>
-        <label class="block">Puntaje de Adicción:</label>
-        <input name="adiccion" type="number" step="0.1" required class="w-full p-2 border rounded"
-          value="{{ datos_usuario.get('Addicted_Score', '') }}">
-      </div>
-
-      <div class="md:col-span-2">
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Predecir Plataforma</button>
-      </div>
-    </form>
-
-    {% if resultado %}
-    <div class="mt-4 p-4 bg-green-100 border border-green-300 rounded-lg shadow">
-      <h3 class="text-xl font-bold text-green-900 mb-2">Análisis Personalizado</h3>
-      <p class="text-green-800 mb-2">
-        Según los datos proporcionados, el modelo ha identificado patrones que sugieren cuál es la plataforma digital
-        que más utilizas.
-      </p>
-      <ul class="list-disc list-inside text-green-800 ml-2 mb-3">
-        <li><strong>Edad:</strong> {{ datos_usuario.get('Age', '?') }} años</li>
-        <li><strong>Género:</strong> {% if datos_usuario.get('Gender', '') == '1' %}Masculino{% else %}Femenino{% endif
-          %}</li>
-        <li><strong>Uso diario promedio:</strong> {{ datos_usuario.get('Avg_Daily_Usage_Hours', '?') }} horas</li>
-        <li><strong>Puntaje de adicción:</strong> {{ datos_usuario.get('Addicted_Score', '?') }}</li>
-      </ul>
-      <p class="text-green-900">
-        Considerando estos factores, el modelo predice con un <strong>85% de precisión</strong> que <strong>{{ resultado
-          }}</strong> es tu plataforma más usada.
-      </p>
-      <p class="text-sm text-green-700 italic mt-2">
-        Este resultado se genera a partir de un análisis de clasificación automatizado, desarrollado con datos reales y
-        múltiples variables de comportamiento digital.
-      </p>
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-indigo-700">Clasificación de Plataforma Más Usada</h1>
+      <p class="text-gray-600">Modelo basado en comportamiento digital</p>
+      <a href="/dashboard"
+        class="mt-3 inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+        Volver al Inicio
+      </a>
     </div>
-    {% endif %}
 
+    <!-- Grid principal -->
+    <div class="grid grid-cols-5 grid-rows-7 gap-4 bg-white p-6 rounded shadow">
 
-    {% if grafica_img %}
-    <div class="mt-6 bg-white border border-indigo-300 rounded-lg shadow p-4">
-      <h3 class="text-xl font-bold text-indigo-800 mb-2">Visualización de la predicción</h3>
-      <img src="data:image/png;base64,{{ grafica_img }}" class="w-full max-w-md mx-auto">
+      <!-- Formulario -->
+      <div class="col-span-2 row-span-7 bg-gray-50 p-4 rounded border">
+        <h2 class="text-xl font-bold mb-4 text-indigo-700">Ingresa tus datos</h2>
+        <form method="POST" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold">Edad:</label>
+            <input name="edad" type="number" required class="w-full p-2 border rounded"
+              value="{{ datos_usuario.get('Age', '') }}">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold">Género (0 = Femenino, 1 = Masculino):</label>
+            <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded"
+              value="{{ datos_usuario.get('Gender', '') }}">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold">Horas de uso diario:</label>
+            <input name="horas" type="number" step="0.1" required class="w-full p-2 border rounded"
+              value="{{ datos_usuario.get('Avg_Daily_Usage_Hours', '') }}">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold">Puntaje de Adicción:</label>
+            <input name="adiccion" type="number" step="0.1" required class="w-full p-2 border rounded"
+              value="{{ datos_usuario.get('Addicted_Score', '') }}">
+          </div>
+
+          <button class="w-full bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+            Predecir Plataforma
+          </button>
+        </form>
+      </div>
+
+      {% if grafica_img %}
+      <div class="col-span-3 row-span-3 col-start-3 row-start-1 bg-white border border-indigo-300 rounded-lg shadow p-4">
+        <h3 class="text-xl font-bold text-indigo-800 mb-2">Visualización de la predicción</h3>
+        <img src="data:image/png;base64,{{ grafica_img }}" class="w-full max-w-md mx-auto">
+      </div>
+      {% endif %}
+
+      {% if resultado %}
+      <div class="col-span-3 row-span-4 col-start-3 row-start-4 bg-green-100 border border-green-300 rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-green-900 mb-2">Análisis</h3>
+        <p class="text-green-800 mb-2">
+          Según los datos proporcionados, el modelo ha identificado patrones que sugieren cuál es la plataforma digital
+          que más utilizas.
+        </p>
+        <ul class="list-disc list-inside text-green-800 ml-2 mb-3">
+          <li><strong>Edad:</strong> {{ datos_usuario.get('Age', '?') }} años</li>
+          <li><strong>Género:</strong>
+            {% if datos_usuario.get('Gender', '') == '1' %}Masculino{% else %}Femenino{% endif %}
+          </li>
+          <li><strong>Uso diario promedio:</strong> {{ datos_usuario.get('Avg_Daily_Usage_Hours', '?') }} horas</li>
+          <li><strong>Puntaje de adicción:</strong> {{ datos_usuario.get('Addicted_Score', '?') }}</li>
+        </ul>
+        <p class="text-green-900">
+          Considerando estos factores, el modelo predice con un <strong>85% de precisión</strong> que
+          <strong>{{ resultado }}</strong> es tu plataforma más usada.
+        </p>
+        <p class="text-sm text-green-700 italic mt-2">
+          Este resultado se genera a partir de un análisis de clasificación automatizado con datos reales.
+        </p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const data = localStorage.getItem("usuarioDatos");
       if (data) {
         const datos = JSON.parse(data);
-
-        const edadInput = document.querySelector('input[name="edad"]');
-        const generoInput = document.querySelector('input[name="genero"]');
-        const horasInput = document.querySelector('input[name="horas"]')
-        const adiccionInput = document.querySelector('input[name="adiccion"]');
-
-        if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
-        if (horasInput && datos.horas !== undefined) horasInput.value = datos.horas;
-        if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
-        if (adiccionInput && datos.adiccion !== undefined) adiccionInput.value = datos.adiccion;
+        document.querySelector('input[name="edad"]').value = datos.edad ?? '';
+        document.querySelector('input[name="genero"]').value = datos.genero ?? '';
+        document.querySelector('input[name="horas"]').value = datos.horas ?? '';
+        document.querySelector('input[name="adiccion"]').value = datos.adiccion ?? '';
       }
-    })
+    });
   </script>
 </body>
 

@@ -6,77 +6,109 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen p-6">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Clasificación con K-Means Clustering</h2>
-    <a href="/dashboard" class="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
-  Volver
-</a>
-
-    <form method="POST" class="grid gap-4 grid-cols-1 md:grid-cols-2">
-      <div>
-        <label class="block">Edad:</label>
-        <input name="edad" type="number" step="1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Age', '') }}">
-      </div>
-
-      <div>
-        <label class="block">Género (0 = Femenino, 1 = Masculino):</label>
-        <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Gender', '') }}">
-      </div>
-
-      <div>
-        <label class="block">Puntaje de Adicción:</label>
-        <input name="adiccion" type="number" step="0.1" required class="w-full p-2 border rounded"
-               value="{{ datos_usuario.get('Addicted_Score', '') }}">
-      </div>
-
-      <div class="md:col-span-2">
-        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Clasificar</button>
-      </div>
-    </form>
-
-{% if resultado %}
-<div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-2xl mx-auto">
-  <!-- Título principal -->
-  <h2 class="text-2xl font-bold text-gray-800 mb-4">Resultado de la predicción</h2>
-  
-  <!-- Resultado destacado -->
-  <div class="mb-5 p-4 {% if 'Sí' in resultado %}bg-red-50 border-l-4 border-red-500{% else %}bg-green-50 border-l-4 border-green-500{% endif %} rounded">
-    <h3 class="text-xl font-semibold {% if 'Sí' in resultado %}text-red-700{% else %}text-green-700{% endif %}">
-      {{ resultado }}
-    </h3>
-  </div>
-  
-  <!-- Explicación -->
-  <div class="prose prose-sm text-gray-700">
-    <p>El modelo de árbol de decisiones ha determinado que {% if "Sí" in resultado %}existe{% else %}no existe{% endif %} una afectación significativa al rendimiento académico con los datos proporcionados.</p>
+  <div class="max-w-7xl mx-auto space-y-6">
     
-    
-  </div>
-</div>
-{% endif %}
-    <div class="mt-6">
-      <h3 class="text-xl font-semibold mb-2">Visualización 3D del Clustering</h3>
-      <img src="data:image/png;base64,{{ arbol_img }}" alt="Gráfico Clustering" class="rounded border">
+    <!-- 🔠 Título -->
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-indigo-700">Análisis de Clustering con K-Means</h1>
+      <p class="text-gray-600 mt-1">Clasifica tu perfil según edad, género y nivel de adicción</p>
+    </div>
+
+    <!-- 🔙 Botón volver -->
+    <div class="text-center">
+      <a href="/dashboard"
+         class="inline-block px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 transition duration-300">
+        Volver al Inicio
+      </a>
+    </div>
+
+    <!-- 🎯 Grid principal -->
+    <div class="bg-white p-6 rounded shadow grid grid-cols-5 grid-rows-7 gap-4">
+
+      <!-- 📝 Formulario -->
+      <div class="col-span-2 row-span-7 bg-gray-50 p-4 rounded border">
+        <h2 class="text-xl font-bold mb-4 text-blue-700">Ingresa tus datos</h2>
+        <form method="POST" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold">Edad:</label>
+            <input name="edad" type="number" step="1" required class="w-full p-2 border rounded"
+                   value="{{ datos_usuario.get('Age', '') }}">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold">Género (0 = Femenino, 1 = Masculino):</label>
+            <input name="genero" type="number" min="0" max="1" required class="w-full p-2 border rounded"
+                   value="{{ datos_usuario.get('Gender', '') }}">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold">Puntaje de Adicción:</label>
+            <input name="adiccion" type="number" step="0.1" required class="w-full p-2 border rounded"
+                   value="{{ datos_usuario.get('Addicted_Score', '') }}">
+          </div>
+
+          <button class="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Clasificar
+          </button>
+        </form>
+      </div>
+
+      <div class="col-span-3 row-span-3 col-start-3 row-start-1 bg-white p-4 border rounded shadow">
+        <h3 class="text-lg font-semibold mb-2 text-gray-800">Visualización 3D del Clustering</h3>
+        <img src="data:image/png;base64,{{ arbol_img }}" alt="Gráfico Clustering" class="rounded border w-full">
+      </div>
+
+      <div class="col-span-3 row-span-4 col-start-3 row-start-4 bg-indigo-50 p-4 border border-indigo-300 rounded shadow">
+        <h3 class="text-xl font-bold text-indigo-800 mb-3">Resultado de la predicción</h3>
+
+        {% if resultado %}
+        <div class="bg-white border-l-4 p-4 rounded 
+                    {% if 'Error' in resultado %}
+                        border-red-500 bg-red-50 text-red-800
+                    {% else %}
+                        border-green-500 bg-green-50 text-green-800
+                    {% endif %}">
+          <p class="text-lg font-semibold">{{ resultado }}</p>
+
+          {% if 'Cluster' in resultado %}
+          <p class="text-sm mt-2 italic">
+            Este resultado indica el grupo al que perteneces basado en tu perfil de edad, género y nivel de adicción.
+          </p>
+
+          <div class="mt-3 text-sm text-gray-700 bg-gray-50 border-l-4 border-indigo-400 p-3 rounded">
+            {% if 'Cluster): 0' in resultado %}
+              <p>📊 <strong>Grupo 0:</strong> Usuarios con <strong>bajo nivel de adicción</strong> y uso moderado de redes sociales. Probablemente mantienes un equilibrio digital saludable.</p>
+            {% elif 'Cluster): 1' in resultado %}
+              <p>📊 <strong>Grupo 1:</strong> Personas con <strong>uso elevado</strong> de redes y <strong>mayor nivel de adicción</strong>. Este patrón puede reflejar dependencia digital significativa.</p>
+            {% elif 'Cluster): 2' in resultado %}
+              <p>📊 <strong>Grupo 2:</strong> Usuarios jóvenes con <strong>alta frecuencia diaria</strong> y <strong>adicción media</strong>. Podrías estar en riesgo de incrementar tu dependencia si los hábitos continúan.</p>
+            {% else %}
+              <p>⚠️ No se pudo determinar una explicación específica para el grupo.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">Ingresa tus datos para ver tu grupo de pertenencia.</p>
+        {% endif %}
+      </div>
     </div>
   </div>
+
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const datosGuardados = localStorage.getItem("usuarioDatos");
+    document.addEventListener("DOMContentLoaded", function () {
+      const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
 
-    if (datosGuardados) {
-      const datos = JSON.parse(datosGuardados);
+      if (datos) {
+        const edadInput = document.querySelector('input[name="edad"]');
+        const generoInput = document.querySelector('input[name="genero"]');
+        const adiccionInput = document.querySelector('input[name="adiccion"]');
 
-      const edadInput = document.querySelector('input[name="edad"]');
-      const generoInput = document.querySelector('input[name="genero"]');
-      const adiccionInput = document.querySelector('input[name="adiccion"]');
-
-      if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
-      if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
-      if (adiccionInput && datos.adiccion !== undefined) adiccionInput.value = datos.adiccion;
-    }
-  });
-</script>
+        if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
+        if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
+        if (adiccionInput && datos.adiccion !== undefined) adiccionInput.value = datos.adiccion;
+      }
+    });
+  </script>
 </body>
 </html>

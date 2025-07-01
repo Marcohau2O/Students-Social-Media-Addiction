@@ -38,7 +38,7 @@ def dashboard():
 
 @app.route('/lineal', methods=['GET', 'POST'])
 def linea_dashboard():
-    df = pd.read_csv("2_IDYGS91.csv")
+    df = pd.read_csv("Students Social Media Addiction.csv")
     modelo = LinearRegression()
     modelo.fit(df[['Avg_Daily_Usage_Hours']], df['Mental_Health_Score'])
 
@@ -184,6 +184,7 @@ def clustering_dashboard():
     return render_template("clustering_dashboard.html",
                            resultado=resultado,
                            datos_usuario=datos_usuario,
+                           cluster_usuario=cluster_usuario,
                            arbol_img=arbol_img)
 
 @app.route('/plataforma', methods=['GET', 'POST'])
@@ -221,7 +222,7 @@ def plataforma_dashboard():
         except Exception as e:
             resultado = f"Error en la predicción: {str(e)}"
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(10, 8))
         ax.bar(clases, probs, color="#6366f1")
         ax.set_ylim(0, 1)
         ax.set_title("Probabilidad por Plataforma Usada")
