@@ -38,7 +38,7 @@ def dashboard():
 
 @app.route('/lineal', methods=['GET', 'POST'])
 def linea_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
     modelo = LinearRegression()
     modelo.fit(df[['Avg_Daily_Usage_Hours']], df['Mental_Health_Score'])
 
@@ -55,7 +55,7 @@ def linea_dashboard():
 
 @app.route('/logistica', methods=['GET', 'POST'])
 def logistica_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
     X = df[['Avg_Daily_Usage_Hours']].values
     y = df['Affects_Academic_Performance'].map({'Yes': 1, 'No': 0}).values
 
@@ -89,7 +89,7 @@ def logistica_dashboard():
 
 @app.route('/arbol', methods=['GET', 'POST'])
 def arbol_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    
 
     
     features = ['Avg_Daily_Usage_Hours', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media']
@@ -131,15 +131,15 @@ def arbol_dashboard():
 
 @app.route('/clustering', methods=['GET', 'POST'])
 def clustering_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    df_local = df.copy()
 
     label_encoder = LabelEncoder()
-    df['Gender'] = label_encoder.fit_transform(df['Gender'])
+    df_local['Gender'] = label_encoder.fit_transform(df_local['Gender'])
 
-    X = df[['Age', 'Gender', 'Addicted_Score']].values
+    X = df_local[['Age', 'Gender', 'Addicted_Score']].values
     modeloG = KMeans(n_clusters=3, n_init=10, random_state=42)
     modeloG.fit(X)
-    df['Cluster'] = modeloG.labels_
+    df_local['Cluster'] = modeloG.labels_
 
     resultado = None
     datos_usuario = {}
@@ -160,8 +160,8 @@ def clustering_dashboard():
     fig = plt.figure(figsize=(10, 7))
     ax = fig.add_subplot(111, projection="3d")
 
-    scatter = ax.scatter(df['Age'], df['Gender'], df['Addicted_Score'],
-                     c=df['Cluster'], cmap='rainbow', s=70, edgecolors='black')
+    scatter = ax.scatter(df_local['Age'], df_local['Gender'], df_local['Addicted_Score'],
+                         c=df_local['Cluster'], cmap='rainbow', s=70, edgecolors='black')
 
     if datos_usuario:
         ax.scatter(datos_usuario['Age'], datos_usuario['Gender'], datos_usuario['Addicted_Score'],
@@ -184,20 +184,19 @@ def clustering_dashboard():
     return render_template("clustering_dashboard.html",
                            resultado=resultado,
                            datos_usuario=datos_usuario,
-                           cluster_usuario=cluster_usuario,
                            arbol_img=arbol_img)
 
 @app.route('/plataforma', methods=['GET', 'POST'])
 def plataforma_dashboard():
-    df = pd.read_csv('Students Social Media Addiction.csv')
+    df_local = df.copy()
 
     le_platform = LabelEncoder()
     le_gender = LabelEncoder()
-    df['Most_Used_Platform'] = le_platform.fit_transform(df['Most_Used_Platform'])
-    df['Gender'] = le_gender.fit_transform(df['Gender'])
+    df_local['Most_Used_Platform'] = le_platform.fit_transform(df_local['Most_Used_Platform'])
+    df_local['Gender'] = le_gender.fit_transform(df_local['Gender'])
 
-    X = df[['Age', 'Gender', 'Avg_Daily_Usage_Hours', 'Addicted_Score']] 
-    y = df['Most_Used_Platform']
+    X = df_local[['Age', 'Gender', 'Avg_Daily_Usage_Hours', 'Addicted_Score']] 
+    y = df_local['Most_Used_Platform']
 
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
     modelo.fit(X, y)
@@ -243,17 +242,17 @@ def plataforma_dashboard():
 
 @app.route('/relacion_estado', methods=['GET', 'POST'])
 def relacion_estado_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    df_local = df.copy()
 
     le_status = LabelEncoder()
     le_gender = LabelEncoder()
 
-    df['Relationship_Status'] = le_status.fit_transform(df['Relationship_Status'])
-    df['Gender'] = le_gender.fit_transform(df['Gender'])
+    df_local['Relationship_Status'] = le_status.fit_transform(df_local['Relationship_Status'])
+    df_local['Gender'] = le_gender.fit_transform(df_local['Gender'])
 
     features = ['Gender', 'Age', 'Addicted_Score', 'Conflicts_Over_Social_Media']
-    X = df[features]
-    y = df['Relationship_Status']
+    X = df_local[features]
+    y = df_local['Relationship_Status']
 
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
     modelo.fit(X, y)
@@ -270,40 +269,45 @@ def relacion_estado_dashboard():
                 'Addicted_Score': float(request.form['adiccion']),
                 'Conflicts_Over_Social_Media': int(request.form['conflictos'])
             }
+
             entrada = pd.DataFrame([datos_usuario])
             probs = modelo.predict_proba(entrada)[0]
             pred = modelo.predict(entrada)[0]
             resultado = le_status.inverse_transform([pred])[0]
 
             clases = le_status.inverse_transform(modelo.classes_)
+
+            # ⬇ Esta parte solo se ejecuta si todo fue exitoso
+            fig, ax = plt.subplots()
+            ax.bar(clases, probs, color="#ec4899")
+            ax.set_ylim(0, 1)
+            ax.set_title("Probabilidad por Estado de Relación")
+            ax.set_ylabel("Probabilidad")
+            ax.set_xlabel("Estado")
+            ax.grid(axis='y', linestyle='--', alpha=0.6)
+
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png')
+            buf.seek(0)
+            grafica_img = base64.b64encode(buf.read()).decode('utf-8')
+            plt.close()
+
         except Exception as e:
             resultado = f"Error en la predicción: {str(e)}"
-
-        fig, ax = plt.subplots()
-        ax.bar(clases, probs, color="#ec4899")
-        ax.set_ylim(0, 1)
-        ax.set_title("Probabilidad por Estado de Relación")
-        ax.set_ylabel("Probabilidad")
-        ax.set_xlabel("Estado")
-        ax.grid(axis='y', linestyle='--', alpha=0.6)
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        grafica_img = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close()
+            grafica_img = None  # Asegurar que no se use imagen inválida
 
     return render_template("relacion_estado_dashboard.html",
                            resultado=resultado,
                            datos_usuario=datos_usuario,
                            grafica_img=grafica_img)
 
+
 @app.route('/red_neuronal', methods=['GET', 'POST'])
 def red_neuronal_dashboard():
-    df = pd.read_csv("Students Social Media Addiction.csv")
+    df_local = df.copy()
 
     le_gender = LabelEncoder()
-    df['Gender'] = le_gender.fit_transform(df['Gender'])
+    df_local['Gender'] = le_gender.fit_transform(df_local['Gender'])
 
     def clasificar_adiccion(valor):
         if valor < 4:
@@ -313,11 +317,11 @@ def red_neuronal_dashboard():
         else:
             return 2
 
-    df['Nivel_Adiccion'] = df['Addicted_Score'].apply(clasificar_adiccion)
+    df_local['Nivel_Adiccion'] = df_local['Addicted_Score'].apply(clasificar_adiccion)
 
     features = ['Avg_Daily_Usage_Hours', 'Age', 'Gender', 'Sleep_Hours_Per_Night']
-    X = df[features]
-    y = df['Nivel_Adiccion']
+    X = df_local[features]
+    y = df_local['Nivel_Adiccion']
 
     modelo = MLPClassifier(hidden_layer_sizes=(10,), max_iter=500, random_state=42)
     modelo.fit(X, y)
