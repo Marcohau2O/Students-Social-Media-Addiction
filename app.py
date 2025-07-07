@@ -18,7 +18,7 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 app = Flask(__name__)
 
 # Cargar datos globalmente
-df = pd.read_csv("Students Social Media Addiction.csv")
+df = pd.read_csv("todos_los_datos.csv")
 
 # Modelo de Regresión Lineal (Ej: predecir Mental_Health_Score)
 modelo_lineal = LinearRegression()
@@ -165,7 +165,7 @@ def clustering_dashboard():
 
     if datos_usuario:
         ax.scatter(datos_usuario['Age'], datos_usuario['Gender'], datos_usuario['Addicted_Score'],
-                   c='black', s=200, marker='*', label='Tu', edgecolors='white')
+                   c='red', s=200, marker='o', label='Tu', edgecolors='white')
     
     ax.set_title('Edad vs Género vs Adicción')
     ax.set_xlabel('Edad')
@@ -347,7 +347,11 @@ def red_neuronal_dashboard():
             probabilidades = modelo.predict_proba(entrada)[0]
 
             fig, ax = plt.subplots()
-            ax.bar(niveles.values(), probabilidades, color=["#34d399", "#fbbf24", "#ef4444"])
+            colores = ["#34d399", "#fbbf24", "#ef4444"]
+            etiquetas = [niveles[clase] for clase in modelo.classes_]
+            colores_plot = colores[:len(etiquetas)]
+
+            ax.bar(etiquetas, probabilidades, color=colores_plot)
             ax.set_ylim(0, 1)
             ax.set_title("Probabilidad por Nivel de Adicción")
             ax.set_ylabel("Probabilidad")

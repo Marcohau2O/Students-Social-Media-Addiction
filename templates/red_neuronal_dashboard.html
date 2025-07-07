@@ -74,14 +74,14 @@
         </div>
 
         <div class="p-4 bg-indigo-100 border border-indigo-300 rounded-lg shadow">
-          <h3 class="text-xl font-bold text-indigo-900 mb-2">Análisis Personalizado</h3>
-          <p class="text-indigo-800 mb-2">Tu nivel de adicción ha sido estimado con base en los siguientes factores:</p>
+          <h3 class="text-xl font-bold text-indigo-900 mb-2">Análisis</h3>
+          <!-- <p class="text-indigo-800 mb-2">Tu nivel de adicción ha sido estimado con base en los siguientes factores:</p>
           <ul class="list-disc list-inside text-indigo-800 ml-2 mb-3">
             <li><strong>Edad:</strong> {{ datos_usuario.get('Age', '?') }} años</li>
-            <li><strong>Género:</strong> {% if datos_usuario.get('Gender', '') == '1' %}Masculino{% else %}Femenino{% endif %}</li>
+            <li><strong>Género:</strong> {% if datos_usuario.get('Gender', '') == 'Masculino' %}Masculino{% else %}Femenino{% endif %}</li>
             <li><strong>Horas de uso diario:</strong> {{ datos_usuario.get('Avg_Daily_Usage_Hours', '?') }} h</li>
             <li><strong>Horas de sueño por noche:</strong> {{ datos_usuario.get('Sleep_Hours_Per_Night', '?') }} h</li>
-          </ul>
+          </ul> -->
           <p class="text-indigo-900">
             Este resultado refleja patrones identificados por una red neuronal entrenada con datos sobre hábitos digitales.
             Niveles altos pueden estar relacionados con posibles impactos en el bienestar emocional y físico.
@@ -98,14 +98,29 @@
   <!-- Autollenado desde LocalStorage -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const data = localStorage.getItem("usuarioDatos");
-      if (data) {
-        const datos = JSON.parse(data);
-        document.querySelector('input[name="edad"]').value = datos.edad ?? '';
-        document.querySelector('input[name="genero"]').value = datos.genero ?? '';
-        document.querySelector('input[name="horas"]').value = datos.horas ?? '';
-        document.querySelector('input[name="sueño"]').value = datos.sueño ?? '';
-      }
+      const STORAGE_KEY = "usuarioDatos";
+      const datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+      const campos = ["edad", "genero", "horas", "sueño"];
+
+      // Cargar datos en los inputs
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input && datos[campo] !== undefined) {
+          input.value = datos[campo];
+        }
+      });
+
+      // Guardar cambios automáticamente al escribir
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input) {
+          input.addEventListener("input", () => {
+            datos[campo] = input.value;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+          });
+        }
+      });
     });
   </script>
 </body>

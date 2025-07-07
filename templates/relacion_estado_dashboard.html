@@ -75,7 +75,7 @@
 
         <div class="p-4 bg-red-100 border border-red-300 rounded-lg shadow">
           <h3 class="text-xl font-bold text-red-900 mb-2">Análisis Personalizado</h3>
-          <p class="text-red-800 mb-2">
+          <!-- <p class="text-red-800 mb-2">
             Este resultado se basa en los datos proporcionados, considerando patrones que podrían influir en el estado
             de una relación actual.
           </p>
@@ -84,7 +84,7 @@
             <li><strong>Género:</strong> {% if datos_usuario.get('Gender', '') == '1' %}Masculino{% else %}Femenino{% endif %}</li>
             <li><strong>Puntaje de adicción:</strong> {{ datos_usuario.get('Addicted_Score', '?') }}</li>
             <li><strong>Conflictos por redes sociales:</strong> {{ datos_usuario.get('Conflicts_Over_Social_Media', '?') }}</li>
-          </ul>
+          </ul> -->
           <p class="text-red-900">
             La inteligencia artificial ha analizado estos factores para inferir la posibilidad de que estés actualmente
             en una relación amorosa. Este resultado es solo orientativo.
@@ -102,14 +102,29 @@
   <!-- Script para autocompletar -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const data = localStorage.getItem("usuarioDatos");
-      if (data) {
-        const datos = JSON.parse(data);
-        document.querySelector('input[name="edad"]').value = datos.edad ?? '';
-        document.querySelector('input[name="genero"]').value = datos.genero ?? '';
-        document.querySelector('input[name="adiccion"]').value = datos.adiccion ?? '';
-        document.querySelector('input[name="conflictos"]').value = datos.conflictos ?? '';
-      }
+      const STORAGE_KEY = "usuarioDatos";
+      const datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+      const campos = ["edad", "genero", "adiccion", "conflictos"];
+
+      // Cargar valores en los inputs
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input && datos[campo] !== undefined) {
+          input.value = datos[campo];
+        }
+      });
+
+      // Guardar automáticamente cuando cambie un input
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input) {
+          input.addEventListener("input", () => {
+            datos[campo] = input.value;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+          });
+        }
+      });
     });
   </script>
 </body>

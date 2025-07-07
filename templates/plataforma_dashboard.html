@@ -66,7 +66,7 @@
       {% if resultado %}
       <div class="col-span-3 row-span-4 col-start-3 row-start-4 bg-green-100 border border-green-300 rounded-lg shadow p-6">
         <h3 class="text-xl font-bold text-green-900 mb-2">Análisis</h3>
-        <p class="text-green-800 mb-2">
+        <!-- <p class="text-green-800 mb-2">
           Según los datos proporcionados, el modelo ha identificado patrones que sugieren cuál es la plataforma digital
           que más utilizas.
         </p>
@@ -77,7 +77,7 @@
           </li>
           <li><strong>Uso diario promedio:</strong> {{ datos_usuario.get('Avg_Daily_Usage_Hours', '?') }} horas</li>
           <li><strong>Puntaje de adicción:</strong> {{ datos_usuario.get('Addicted_Score', '?') }}</li>
-        </ul>
+        </ul> -->
         <p class="text-green-900">
           Considerando estos factores, el modelo predice con un <strong>85% de precisión</strong> que
           <strong>{{ resultado }}</strong> es tu plataforma más usada.
@@ -92,14 +92,29 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const data = localStorage.getItem("usuarioDatos");
-      if (data) {
-        const datos = JSON.parse(data);
-        document.querySelector('input[name="edad"]').value = datos.edad ?? '';
-        document.querySelector('input[name="genero"]').value = datos.genero ?? '';
-        document.querySelector('input[name="horas"]').value = datos.horas ?? '';
-        document.querySelector('input[name="adiccion"]').value = datos.adiccion ?? '';
-      }
+      const STORAGE_KEY = "usuarioDatos";
+      const datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+      const campos = ["edad", "genero", "horas", "adiccion"];
+
+      // Cargar valores almacenados
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input && datos[campo] !== undefined) {
+          input.value = datos[campo];
+        }
+      });
+
+      // Guardar en localStorage cada cambio
+      campos.forEach(campo => {
+        const input = document.querySelector(`input[name="${campo}"]`);
+        if (input) {
+          input.addEventListener("input", () => {
+            datos[campo] = input.value;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+          });
+        }
+      });
     });
   </script>
 </body>

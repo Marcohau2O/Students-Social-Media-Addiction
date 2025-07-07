@@ -96,19 +96,36 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const datos = JSON.parse(localStorage.getItem("usuarioDatos") || "{}");
+      document.addEventListener("DOMContentLoaded", function () {
+        const STORAGE_KEY = "usuarioDatos";
+        let datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 
-      if (datos) {
         const edadInput = document.querySelector('input[name="edad"]');
         const generoInput = document.querySelector('input[name="genero"]');
         const adiccionInput = document.querySelector('input[name="adiccion"]');
 
+        
         if (edadInput && datos.edad !== undefined) edadInput.value = datos.edad;
         if (generoInput && datos.genero !== undefined) generoInput.value = datos.genero;
         if (adiccionInput && datos.adiccion !== undefined) adiccionInput.value = datos.adiccion;
-      }
-    });
-  </script>
+
+        // Función para guardar cambios sin borrar los demás campos
+        function guardarCampo(nombre, valor) {
+          datos[nombre] = valor;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
+        }
+
+        // Listeners para guardar en localStorage al escribir
+        if (edadInput) {
+          edadInput.addEventListener("input", () => guardarCampo("edad", edadInput.value));
+        }
+        if (generoInput) {
+          generoInput.addEventListener("input", () => guardarCampo("genero", generoInput.value));
+        }
+        if (adiccionInput) {
+          adiccionInput.addEventListener("input", () => guardarCampo("adiccion", adiccionInput.value));
+        }
+      });
+</script>
 </body>
 </html>

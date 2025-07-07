@@ -115,16 +115,28 @@
 
   <!-- Autollenado desde localStorage -->
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const data = localStorage.getItem("usuarioDatos");
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputHoras = document.querySelector('input[name="horas"]');
+      const STORAGE_KEY = "usuarioDatos";
+
+      // Cargar datos previos
+      const data = localStorage.getItem(STORAGE_KEY);
+      let parsed = {};
       if (data) {
-        const parsed = JSON.parse(data);
-        const inputHoras = document.querySelector('input[name="horas"]');
+        parsed = JSON.parse(data);
         if (parsed.horas && inputHoras) {
           inputHoras.value = parsed.horas;
         }
       }
+
+      // Guardar cambios sin perder otros campos
+      if (inputHoras) {
+        inputHoras.addEventListener("input", function () {
+          parsed.horas = inputHoras.value;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        });
+      }
     });
-  </script>
+</script>
 </body>
 </html>

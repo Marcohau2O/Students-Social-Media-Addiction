@@ -81,18 +81,39 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const data = localStorage.getItem("usuarioDatos");
-      if (data) {
-        const parsed = JSON.parse(data);
-        const horasInput = document.querySelector('input[name="horas"]');
-        const sueñoInput = document.querySelector('input[name="sueño"]');
-        const conflictosInput = document.querySelector('input[name="conflictos"]');
+      const STORAGE_KEY = "usuarioDatos";
 
-        if (horasInput && parsed.horas !== undefined) horasInput.value = parsed.horas;
-        if (sueñoInput && parsed.sueño !== undefined) sueñoInput.value = parsed.sueño;
-        if (conflictosInput && parsed.conflictos !== undefined) conflictosInput.value = parsed.conflictos;
+      // Recuperar datos previos del localStorage
+      let storedData = localStorage.getItem(STORAGE_KEY);
+      let parsed = storedData ? JSON.parse(storedData) : {};
+
+      // Inputs del formulario
+      const horasInput = document.querySelector('input[name="horas"]');
+      const sueñoInput = document.querySelector('input[name="sueño"]');
+      const conflictosInput = document.querySelector('input[name="conflictos"]');
+
+      // Rellenar campos si hay datos previos
+      if (horasInput && parsed.horas !== undefined) horasInput.value = parsed.horas;
+      if (sueñoInput && parsed.sueño !== undefined) sueñoInput.value = parsed.sueño;
+      if (conflictosInput && parsed.conflictos !== undefined) conflictosInput.value = parsed.conflictos;
+
+      // Función para guardar cambios sin eliminar los demás datos
+      function guardarCambio(nombre, valor) {
+        parsed[nombre] = valor;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       }
-    })
+
+      // Listeners para guardar automáticamente al escribir
+      if (horasInput) {
+        horasInput.addEventListener("input", () => guardarCambio("horas", horasInput.value));
+      }
+      if (sueñoInput) {
+        sueñoInput.addEventListener("input", () => guardarCambio("sueño", sueñoInput.value));
+      }
+      if (conflictosInput) {
+        conflictosInput.addEventListener("input", () => guardarCambio("conflictos", conflictosInput.value));
+      }
+    });
   </script>
 </body>
 </html>
